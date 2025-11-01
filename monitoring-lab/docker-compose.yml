@@ -1,0 +1,72 @@
+version: '3.8'
+services:
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:latest
+    container_name: victoriametrics
+    command:
+      - -configFile=/home/vboxuser/shit/monitoring-lab/victoriametrics/victoriametrics.yaml
+    ports:
+      - "8428:8428"
+    volumes:
+      - victoria_data:/storage
+    networks:
+      - monitoring
+
+  vmagent:
+    image: victoriametrics/vmagent:latest
+    container_name: vmagent
+    command:
+      - "--config.file=/home/vboxuser/shit/monitoring-lab/vmagent/scrape.yaml"
+    volumes:
+      - ./vmagent/vmagent.yml:/etc/vmagent/vmagent.yaml:ro
+    networks:
+      - monitoring
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/sys:ro
+      - ./cAdvisor/cadvisor.yaml:/etc/cadvisor/config.yml:ro
+    networks:
+      - monitoring
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    privileged: true
+    command:
+      - '--path.rootfs=/host'
+    network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisoring/dashboard:/etc/grafana/provisoring
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    ports:
+      - "3000:3000"
+    networks:
+      - monitoring
+
+volumes:
+  victoria_data:
+  grafana_data:
+
+networks:
+  monitoring:
+    driver: bridge
+ 

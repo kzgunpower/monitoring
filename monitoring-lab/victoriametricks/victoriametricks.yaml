@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 10s
+storage:
+  data_path: "/storage"
+  retention_period: "5d"
+server:
+  http_listen_addr: ":8428"
+  http_listen_url: "/"
+  

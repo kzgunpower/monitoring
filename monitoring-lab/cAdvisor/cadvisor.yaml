@@ -1,0 +1,9 @@
+storage_driver: none
+docker_only: true
+housekeeping_interval: 10s
+disable_metrics:
+ - disk
+ - diskIO
+http:
+ port: 8080
+ adress: 0.0.0.0

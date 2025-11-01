@@ -1,0 +1,9 @@
+ApiVersion: 1
+datasources:
+  - name: VMagent
+    type: prometheus
+    access: proxy
+    url: http://victoriametrics:8428
+    isdefault: true
+    editable: true
+    isDefault: true
